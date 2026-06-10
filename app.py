@@ -264,11 +264,22 @@ def get_demo_data(seed=42):
     return generate_demo_trace(hours=6, seed=seed)
 
 def parse_uploaded_csv(file):
-    df = pd.read_csv(file, header=None)
+    # Try auto-header detection first, then no-header fallback
+    df = pd.read_csv(file)
     numeric = df.select_dtypes(include=[np.number])
     if numeric.empty:
-        st.error("No numeric column found in CSV.")
-        st.stop()
+        file.seek(0)
+        df = pd.read_csv(file, header=None)
+        numeric = df.select_dtypes(include=[np.number])
+    if numeric.empty:
+        # Last resort: coerce first column, drop non-numeric rows (e.g. stray header)
+        file.seek(0)
+        df = pd.read_csv(file, header=None)
+        col = pd.to_numeric(df.iloc[:, 0], errors="coerce").dropna()
+        if col.empty:
+            st.error("No numeric column found. Upload a CSV with one column of Watt values.")
+            st.stop()
+        return col.to_numpy(dtype=np.float32)
     return numeric.iloc[:, 0].to_numpy(dtype=np.float32)
 
 def f1_grade(f1):
