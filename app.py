@@ -662,33 +662,36 @@ with right:
 
     rows = []
     for a in APPLIANCES:
-        on_pct = (predictions[a] > ON_THRESHOLDS[a]).mean() * 100
+        on_pct   = (predictions[a] > ON_THRESHOLDS[a]).mean() * 100
+        avg_when_on = predictions[a][predictions[a] > ON_THRESHOLDS[a]].mean() if on_pct > 0 else 0.0
         rows.append({
-            "Appliance":    APP_LABELS[a],
-            "Energy (kWh)": round(app_kwh[a], 4),
-            "Peak (W)":     int(predictions[a].max()),
-            "ON time %":    round(on_pct, 1),
-            "F1 (test)":    CARD_METRICS[a]["F1"],
+            "Appliance":      APP_LABELS[a],
+            "Energy (kWh)":   round(app_kwh[a], 4),
+            "Share %":        round(100 * app_kwh[a] / max(total_kwh, 1e-6), 1),
+            "Peak (W)":       int(predictions[a].max()),
+            "Avg when ON (W)": int(avg_when_on),
+            "ON time %":      round(on_pct, 1),
         })
     df_summary = pd.DataFrame(rows).set_index("Appliance")
-    def _f1_color(val):
-        """Green-scale cell color without requiring matplotlib."""
+
+    def _energy_color(val):
         try:
             v = float(val)
         except (TypeError, ValueError):
             return ""
-        # interpolate white→green between 0 and 1
-        g = int(180 + v * 75)   # 180–255
-        r = int(255 - v * 180)  # 255–75
-        b = int(255 - v * 180)  # 255–75
-        return f"background-color: rgb({r},{g},{b}); color: #1A202C;"
+        intensity = min(v / max(r["Energy (kWh)"] for r in rows), 1.0)
+        r_ch = int(255 - intensity * 60)
+        g_ch = int(255 - intensity * 120)
+        b_ch = int(255 - intensity * 180)
+        return f"background-color: rgb({r_ch},{g_ch},{b_ch}); color: #1A202C;"
 
     st.dataframe(
         df_summary.style
-          .map(_f1_color, subset=["F1 (test)"])
-          .format({"Energy (kWh)": "{:.4f}", "F1 (test)": "{:.3f}"}),
+          .map(_energy_color, subset=["Energy (kWh)"])
+          .format({"Energy (kWh)": "{:.4f}", "Share %": "{:.1f}%", "ON time %": "{:.1f}%",
+                   "Avg when ON (W)": "{:.0f}"}),
         use_container_width=True,
-        height=200,
+        height=220,
     )
 
     st.markdown("<div style='margin-top:1rem'></div>", unsafe_allow_html=True)
