@@ -660,9 +660,21 @@ with right:
             "F1 (test)":    CARD_METRICS[a]["F1"],
         })
     df_summary = pd.DataFrame(rows).set_index("Appliance")
+    def _f1_color(val):
+        """Green-scale cell color without requiring matplotlib."""
+        try:
+            v = float(val)
+        except (TypeError, ValueError):
+            return ""
+        # interpolate white→green between 0 and 1
+        g = int(180 + v * 75)   # 180–255
+        r = int(255 - v * 180)  # 255–75
+        b = int(255 - v * 180)  # 255–75
+        return f"background-color: rgb({r},{g},{b}); color: #1A202C;"
+
     st.dataframe(
         df_summary.style
-          .background_gradient(subset=["F1 (test)"], cmap="Greens")
+          .map(_f1_color, subset=["F1 (test)"])
           .format({"Energy (kWh)": "{:.4f}", "F1 (test)": "{:.3f}"}),
         use_container_width=True,
         height=200,
