@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.log
+
+# Large numpy prediction arrays (keep metrics, ignore raw arrays)
+predictions/*.npy
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

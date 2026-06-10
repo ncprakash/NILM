@@ -1,0 +1,28 @@
+{
+  "model_name": "FastNILM-v5",
+  "version": "5.0.0",
+  "date_trained": "2026-06-10",
+  "architecture": "Dilated Seq2Point + Global Context Pooling",
+  "training_data": "UK-DALE Houses 1+2",
+  "test_data": "UK-DALE House 5 (unseen)",
+  "metrics": {
+    "kettle":          {"F1": 0.523, "MAE_W": 13.74, "NRMSE": 4.53,  "Precision": 0.417, "Recall": 0.701},
+    "fridge":          {"F1": 0.700, "MAE_W": 39.70, "NRMSE": 41.31, "Precision": 0.610, "Recall": 0.821, "EDA": 0.785},
+    "washing_machine": {"F1": 0.336, "MAE_W": 50.37, "NRMSE": 31.16, "Precision": 0.285, "Recall": 0.409, "EDA": 0.472},
+    "dish_washer":     {"F1": 0.537, "MAE_W": 18.26, "NRMSE": 7.91,  "Precision": 0.388, "Recall": 0.874, "EDA": 0.768},
+    "average":         {"F1": 0.524, "MAE_W": 30.52, "NRMSE": 21.23, "Precision": 0.425, "Recall": 0.701}
+  },
+  "parameters": 58153,
+  "window_size": 599,
+  "weights": {
+    "kettle":          "models/nilm_kettle.pt",
+    "fridge":          "models/nilm_fridge.pt",
+    "washing_machine": "models/nilm_washing_machine.pt",
+    "dish_washer":     "models/nilm_dish_washer.pt"
+  },
+  "references": [
+    "Zhang et al. 2018 - Seq2Point",
+    "Jia et al. 2021 - BiDi-NILM",
+    "Alami et al. 2022 - Conv-NILM-Net"
+  ]
+}

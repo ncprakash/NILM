@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+*.md
+COLAB_EXPORT_SNIPPET.py
+.env

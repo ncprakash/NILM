@@ -1,0 +1,4 @@
+House,Role,Samples,Duration (days),Agg mean (W),Agg max (W),kettle ON%,fridge ON%,washin ON%,dish_w ON%
+H1,Train,"21,837,636",1516.5,378,8788,0.47,42.92,3.82,2.41
+H2,Train,"2,780,373",193.1,337,16529,0.72,26.80,0.70,1.72
+H5,Test (UNSEEN),"1,763,101",122.4,691,9644,0.19,35.62,4.78,1.02
