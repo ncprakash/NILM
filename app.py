@@ -243,14 +243,20 @@ def load_card():
     with open(CARD_PATH) as f:
         return json.load(f)
 
-@st.cache_resource(show_spinner="Loading model weights…")
+@st.cache_resource(show_spinner=False)
 def load_all_models():
     from inference import load_model
     return {a: load_model(os.path.join(MODEL_DIR, f"nilm_{a}.pt")) for a in APPLIANCES}
 
-def run_inference(models, aggregate):
+@st.cache_data(show_spinner=False)
+def get_predictions(aggregate: np.ndarray) -> dict:
+    """Cached seq2point inference — only re-runs when aggregate array changes."""
     from inference import predict
-    return {a: predict(models[a], aggregate, a) for a in APPLIANCES}
+    models = load_all_models()
+    results = {}
+    for a in APPLIANCES:
+        results[a] = predict(models[a], aggregate, a)
+    return results
 
 @st.cache_data(show_spinner=False)
 def get_demo_data(seed=42):
@@ -482,12 +488,11 @@ with st.spinner("Preparing signal…"):
         aggregate    = parse_uploaded_csv(uploaded_file)
         ground_truth = {}
 
-with st.spinner("Running inference…"):
-    if MODELS_OK:
-        models      = load_all_models()
-        predictions = run_inference(models, aggregate)
-    else:
-        predictions = {a: ground_truth.get(a, np.zeros_like(aggregate)) for a in APPLIANCES}
+if MODELS_OK:
+    with st.spinner("Running inference… (first load only — results are cached)"):
+        predictions = get_predictions(aggregate)
+else:
+    predictions = {a: ground_truth.get(a, np.zeros_like(aggregate)) for a in APPLIANCES}
 
 # display window
 n_show   = min(len(aggregate), int(window_minutes * 60 / SAMPLE_PERIOD))
